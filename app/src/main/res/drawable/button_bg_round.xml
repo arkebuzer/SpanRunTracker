@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--button pressed state background color-->
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <stroke android:color="#000000" android:width="5dp" />
+            <solid android:color="#FFBB00" />
+            <size android:width="170dp" android:height="170dp" />
+        </shape>
+    </item>
+
+    <!--button focused state background color-->
+    <item android:state_focused="true">
+        <shape android:shape="oval">
+            <stroke android:color="#000000" android:width="5dp" />
+            <solid android:color="#FFDD00" />
+            <size android:width="170dp" android:height="170dp" />
+        </shape>
+    </item>
+
+    <!--button default background color-->
     <item>
         <shape android:shape="oval">
             <stroke android:color="#000000" android:width="5dp" />
             <solid android:color="#FFFF00"/>
-            <size android:width="150dp" android:height="150dp"/>
+            <size android:width="170dp" android:height="170dp" />
         </shape>
     </item>
 </selector>

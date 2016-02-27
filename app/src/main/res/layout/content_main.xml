@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="16dp"
@@ -51,13 +52,51 @@
             android:inputType="number" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/circle_timer_label"
+        android:paddingTop="50dp"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/circle_timer_label"
+        android:textSize="14pt"
+        android:layout_below="@id/input_area" />
+
+    <TextView
+        android:id="@+id/circle_timer_area"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time_zero"
+        android:textSize="16pt"
+        android:layout_below="@id/circle_timer_label" />
+
+    <TextView
+        android:id="@+id/run_timer_label"
+        android:paddingTop="20dp"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/run_timer_label"
+        android:textSize="12pt"
+        android:layout_below="@id/circle_timer_area" />
+
+    <TextView
+        android:id="@+id/run_timer_area"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time_zero"
+        android:textSize="14pt"
+        android:layout_below="@id/run_timer_label" />
+
     <Button
         android:id ="@+id/start_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start"
         android:background="@drawable/button_bg_round"
-        android:layout_below="@id/input_area"
+        android:layout_below="@id/run_timer_area"
         android:textSize="16pt"
         android:layout_centerInParent="true"
         android:layout_marginTop="25dp"

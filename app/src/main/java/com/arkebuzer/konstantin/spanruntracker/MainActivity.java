@@ -1,23 +1,28 @@
 package com.arkebuzer.konstantin.spanruntracker;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.Handler;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private Toast toast = null;
     private TrainingInput trainingInput = null;
+    private boolean onRun = false;
+    private long runStartTime = 0;
+    private TextView runTimerArea;
+    private long circleStartTime = 0;
+    private TextView circleTimerArea;
+    private boolean workSpan = false;
+    private int circleNum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         trainingInput = new TrainingInput(1,2,3);
         binding.setTrainingInput(trainingInput);*/
         setContentView(R.layout.activity_main);
+        runTimerArea = (TextView) findViewById(R.id.run_timer_area);
+        circleTimerArea = (TextView) findViewById(R.id.circle_timer_area);
         /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -46,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -59,43 +66,142 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     public void startRun(View view) {
+        if (!onRun) {
+            if (checkSettings()) {
+                vibrate();
+                onRun = true;
+                workSpan = true;
+                //Change background
+                View mainView = findViewById(R.id.main_activity);
+                mainView.setBackgroundColor(getResources().getColor(R.color.colorWork));
+                //Change button label
+                Button button = (Button) view;
+                button.setText(R.string.work);
+                //Start Timers
+                circleNum = trainingInput.getCirclesCnt();
+                runStartTime = System.currentTimeMillis();
+                runTimerHandler.postDelayed(runTimerRunnable, 0);
+                circleStartTime = runStartTime;
+                circleTimerHandler.postDelayed(circleTimerRunnable, 0);
+            }
+        } else {
+            vibrate();
+            if (workSpan) {
+                workSpan = false;
+                //Change background
+                View mainView = findViewById(R.id.main_activity);
+                mainView.setBackgroundColor(getResources().getColor(R.color.colorRest));
+                //Change button label
+                Button button = (Button) view;
+                button.setText(R.string.rest);
+            } else {
+                circleNum--;
+                if (circleNum == 0) {
+                    onRun = false;
+                    workSpan = false;
+                    //Stop Timers
+                    runTimerHandler.removeCallbacks(runTimerRunnable);
+                    circleTimerHandler.removeCallbacks(circleTimerRunnable);
+                    //Change background
+                    View mainView = findViewById(R.id.main_activity);
+                    mainView.setBackgroundColor(getResources().getColor(R.color.colorIdle));
+                    //Change button label
+                    Button button = (Button) view;
+                    button.setText(R.string.start);
+                } else {
+                    workSpan = true;
+                    //Change background
+                    View mainView = findViewById(R.id.main_activity);
+                    mainView.setBackgroundColor(getResources().getColor(R.color.colorWork));
+                    //Change button label
+                    Button button = (Button) view;
+                    button.setText(R.string.work);
+                    circleStartTime = System.currentTimeMillis();
+                }
+            }
+        }
+    }
+
+    private boolean checkSettings() {
         try {
-            EditText editCirclesCnt = (EditText)findViewById(R.id.edit_circles_cnt);
+            EditText editCirclesCnt = (EditText) findViewById(R.id.edit_circles_cnt);
             String circlesCnt = editCirclesCnt.getText().toString();
-            EditText editWorkDistance = (EditText)findViewById(R.id.edit_work_distance);
+            EditText editWorkDistance = (EditText) findViewById(R.id.edit_work_distance);
             String workDistance = editWorkDistance.getText().toString();
-            EditText editRestDistance = (EditText)findViewById(R.id.edit_rest_distance);
+            EditText editRestDistance = (EditText) findViewById(R.id.edit_rest_distance);
             String restDistance = editRestDistance.getText().toString();
 
             trainingInput = new TrainingInput(Integer.parseInt(circlesCnt),
-                    Integer.parseInt(workDistance),Integer.parseInt(restDistance));
-
-            Context context = getApplicationContext();
-            CharSequence text = trainingInput.toString();
-            int duration = Toast.LENGTH_LONG;
-
-            toast = Toast.makeText(context, text, duration);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-        }
-        catch (Exception e) {
+                    Integer.parseInt(workDistance), Integer.parseInt(restDistance));
+            if (toast != null) {
+                toast.cancel();
+            }
+            return true;
+        } catch (NumberFormatException e) {
             Context context = getApplicationContext();
             CharSequence text = "Заполните информацию о тренировке";
-                    //trainingInput.toString();//"Hello toast!";
-            int duration = Toast.LENGTH_LONG;
-
+            int duration = Toast.LENGTH_SHORT;
+            if (toast != null) {
+                toast.cancel();
+            }
             toast = Toast.makeText(context, text, duration);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+            return false;
         }
     }
 
+    //runs without a timer by reposting this handler at the end of the runnable
+    private Handler runTimerHandler = new Handler();
+    private Runnable runTimerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - runStartTime;
+            int centis = (int) (millis / 10);
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+            centis = centis % 100;
+
+            runTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
+            //ToDo. Разобраться с выводом сотых секунд
+            runTimerHandler.postDelayed(this, 10);
+        }
+    };
+
+    //runs without a timer by reposting this handler at the end of the runnable
+    //ToDo. Подумать о сокращении дублированной логики
+    private Handler circleTimerHandler = new Handler();
+    private Runnable circleTimerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - circleStartTime;
+            int centis = (int) (millis / 10);
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+            centis = centis % 100;
+
+            circleTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
+            //ToDo. Разобраться с выводом сотых секунд
+            circleTimerHandler.postDelayed(this, 10);
+        }
+    };
+
+    private void vibrate() {
+        Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        v.vibrate(500);
+    }
+
     @Override
-    protected void onStop () {
+    protected void onStop() {
         super.onStop();
-        toast.cancel();
+        //toast.cancel();
     }
 }

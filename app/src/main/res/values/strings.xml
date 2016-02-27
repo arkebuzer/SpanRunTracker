@@ -8,4 +8,9 @@
     <string name="multiply">X</string>
     <string name="divide">/</string>
     <string name="start">Старт</string>
+    <string name="work">Работа</string>
+    <string name="rest">Отдых</string>
+    <string name="circle_timer_label">Время круга</string>
+    <string name="run_timer_label">Время тренировки</string>
+    <string name="time_zero">00:00.00</string>
 </resources>
