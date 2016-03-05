@@ -4,6 +4,7 @@ package com.arkebuzer.konstantin.spanruntracker.data;
 /**
  * Created by Konstantin on 27.02.2016.
  */
+@Deprecated
 public class TrainingInput {
 
     private Integer circlesCnt;

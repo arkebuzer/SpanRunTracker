@@ -13,14 +13,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arkebuzer.konstantin.spanruntracker.data.TrainingInput;
+import com.arkebuzer.konstantin.spanruntracker.data.TrainingData;
 
 public class MainActivity extends AppCompatActivity {
 
     public final static String EXTRA_TRAINING_DATA = "com.arkebuzer.konstantin.spanruntracker.TrainingData";
 
     private Toast toast = null;
-    private TrainingInput trainingInput = null;
+    private TrainingData trainingData = null;
     private boolean onRun = false;
     private long runStartTime = 0;
     private TextView runTimerArea;
@@ -33,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*ActivityMainBinding binding =  DataBindingUtil.setContentView(this, R.layout.content_main);
-        trainingInput = new TrainingInput(1,2,3);
-        binding.setTrainingInput(trainingInput);*/
+        TrainingData = new TrainingData(1,2,3);
+        binding.setTrainingData(TrainingData);*/
         setContentView(R.layout.activity_main);
         runTimerArea = (TextView) findViewById(R.id.run_timer_area);
         circleTimerArea = (TextView) findViewById(R.id.circle_timer_area);
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 Button button = (Button) view;
                 button.setText(R.string.work);
                 //Start Timers
-                circleNum = trainingInput.getCirclesCnt();
+                circleNum = trainingData.getCirclesCnt();
                 runStartTime = System.currentTimeMillis();
                 runTimerHandler.postDelayed(runTimerRunnable, 0);
                 circleStartTime = runStartTime;
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             EditText editRestDistance = (EditText) findViewById(R.id.edit_rest_distance);
             String restDistance = editRestDistance.getText().toString();
 
-            trainingInput = new TrainingInput(Integer.parseInt(circlesCnt),
+            trainingData = new TrainingData(Integer.parseInt(circlesCnt),
                     Integer.parseInt(workDistance), Integer.parseInt(restDistance));
             if (toast != null) {
                 toast.cancel();
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ReportActivity.class);
         // Добавляем с помощью свойства putExtra объект - первый параметр - ключ,
         // второй параметр - хначение этого объекта
-        //intent.putExtra(EXTRA_TRAINING_DATA, trainingData);
+        intent.putExtra(EXTRA_TRAINING_DATA, trainingData);
         // запуск activity
         startActivity(intent);
     }
