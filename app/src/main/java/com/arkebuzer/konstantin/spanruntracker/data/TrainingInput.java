@@ -1,4 +1,4 @@
-package com.arkebuzer.konstantin.spanruntracker;
+package com.arkebuzer.konstantin.spanruntracker.data;
 
 
 /**

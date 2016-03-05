@@ -1,6 +1,7 @@
 package com.arkebuzer.konstantin.spanruntracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -12,7 +13,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arkebuzer.konstantin.spanruntracker.data.TrainingInput;
+
 public class MainActivity extends AppCompatActivity {
+
+    public final static String EXTRA_TRAINING_DATA = "com.arkebuzer.konstantin.spanruntracker.TrainingData";
 
     private Toast toast = null;
     private TrainingInput trainingInput = null;
@@ -69,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
     public void startRun(View view) {
-        if (!onRun) {
+        if (!onRun) { //Тренировка не начата
             if (checkSettings()) {
                 vibrate();
                 onRun = true;
@@ -77,6 +82,13 @@ public class MainActivity extends AppCompatActivity {
                 //Change background
                 View mainView = findViewById(R.id.main_activity);
                 mainView.setBackgroundColor(getResources().getColor(R.color.colorWork));
+                //Disable input
+                EditText editCirclesCnt = (EditText) findViewById(R.id.edit_circles_cnt);
+                editCirclesCnt.setEnabled(false);
+                EditText editWorkDistance = (EditText) findViewById(R.id.edit_work_distance);
+                editWorkDistance.setEnabled(false);
+                EditText editRestDistance = (EditText) findViewById(R.id.edit_rest_distance);
+                editRestDistance.setEnabled(false);
                 //Change button label
                 Button button = (Button) view;
                 button.setText(R.string.work);
@@ -87,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
                 circleStartTime = runStartTime;
                 circleTimerHandler.postDelayed(circleTimerRunnable, 0);
             }
-        } else {
+        } else { //Тренировка начата
             vibrate();
-            if (workSpan) {
+            if (workSpan) { //Рабочий отрезок
                 workSpan = false;
                 //Change background
                 View mainView = findViewById(R.id.main_activity);
@@ -97,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
                 //Change button label
                 Button button = (Button) view;
                 button.setText(R.string.rest);
-            } else {
+            } else { //Отрезок для отдыхы
                 circleNum--;
-                if (circleNum == 0) {
+                if (circleNum == 0) { //Конец тренировки
                     onRun = false;
                     workSpan = false;
                     //Stop Timers
@@ -111,6 +123,15 @@ public class MainActivity extends AppCompatActivity {
                     //Change button label
                     Button button = (Button) view;
                     button.setText(R.string.start);
+                    //Enable input
+                    EditText editCirclesCnt = (EditText) findViewById(R.id.edit_circles_cnt);
+                    editCirclesCnt.setEnabled(true);
+                    EditText editWorkDistance = (EditText) findViewById(R.id.edit_work_distance);
+                    editWorkDistance.setEnabled(true);
+                    EditText editRestDistance = (EditText) findViewById(R.id.edit_rest_distance);
+                    editRestDistance.setEnabled(true);
+                    //Show Report
+                    showReport();
                 } else {
                     workSpan = true;
                     //Change background
@@ -169,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
             runTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
             //ToDo. Разобраться с выводом сотых секунд
-            runTimerHandler.postDelayed(this, 10);
+            runTimerHandler.postDelayed(this, 20);
         }
     };
 
@@ -189,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
             circleTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
             //ToDo. Разобраться с выводом сотых секунд
-            circleTimerHandler.postDelayed(this, 10);
+            circleTimerHandler.postDelayed(this, 20);
         }
     };
 
@@ -197,6 +218,16 @@ public class MainActivity extends AppCompatActivity {
         Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         v.vibrate(500);
+    }
+
+    public void showReport() {
+        // Создаем объект Intent для вызова новой Activity
+        Intent intent = new Intent(this, ReportActivity.class);
+        // Добавляем с помощью свойства putExtra объект - первый параметр - ключ,
+        // второй параметр - хначение этого объекта
+        //intent.putExtra(EXTRA_TRAINING_DATA, trainingData);
+        // запуск activity
+        startActivity(intent);
     }
 
     @Override
