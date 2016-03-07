@@ -34,7 +34,7 @@ public class TrainingData implements Parcelable {
         circles.get(circleNum).setRestTime(restTime);
     }
 
-    //ToDo. Реализовать расчет скорости
+    //ToDo. Уточнить алгоритм и точность расчетов
     public String countAveragePace(Integer distance, TimeUnit timeUnit, boolean workPace) {
         Double averagePace = 0.0;
         //Get total time in seconds
@@ -47,7 +47,7 @@ public class TrainingData implements Parcelable {
                 averagePace += (1.0 * c.getRestTime()) / restDistance;
             }
         }
-        //Pace as second per meter
+        //Count pace as second per meter
         averagePace = averagePace / circlesCnt;
         switch (timeUnit) {
             case SECOND:

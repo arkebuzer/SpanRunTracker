@@ -34,9 +34,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*ActivityMainBinding binding =  DataBindingUtil.setContentView(this, R.layout.content_main);
-        TrainingData = new TrainingData(1,2,3);
-        binding.setTrainingData(TrainingData);*/
         setContentView(R.layout.activity_main);
         runTimerArea = (TextView) findViewById(R.id.run_timer_area);
         spanTimerArea = (TextView) findViewById(R.id.span_timer_area);
@@ -186,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
         if (workSpan) {
             //"%02d:%02d.%02d", minutes, seconds, centis
             String spanTimeStr = spanTimerArea.getText().toString();
-            //Log.d("Minutes",spanTimeStr.substring(0,2));
-            //Log.d("Seconds",spanTimeStr.substring(3,5));
             Integer secs = Integer.parseInt(spanTimeStr.substring(0, 2)) * 60
                     + Integer.parseInt(spanTimeStr.substring(3, 5));
             trainingData.setCircleWorkTime(secs, circleNum);
