@@ -53,23 +53,23 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/circle_timer_label"
+        android:id="@+id/span_timer_label"
         android:paddingTop="50dp"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/circle_timer_label"
+        android:text="@string/span_timer_label"
         android:textSize="14pt"
         android:layout_below="@id/input_area" />
 
     <TextView
-        android:id="@+id/circle_timer_area"
+        android:id="@+id/span_timer_area"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/time_zero"
         android:textSize="16pt"
-        android:layout_below="@id/circle_timer_label" />
+        android:layout_below="@id/span_timer_label" />
 
     <TextView
         android:id="@+id/run_timer_label"
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:text="@string/run_timer_label"
         android:textSize="12pt"
-        android:layout_below="@id/circle_timer_area" />
+        android:layout_below="@id/span_timer_area" />
 
     <TextView
         android:id="@+id/run_timer_area"

@@ -20,17 +20,46 @@ public class TrainingData implements Parcelable {
         this.workDistance = workDistance;
         this.restDistance = restDistance;
         circles = new ArrayList<CircleData>();
-        for (Integer i = 0; i < 10; i++) {
+        for (Integer i = 0; i < circlesCnt; i++) {
             circles.add(new CircleData());
         }
     }
 
+    //Время в секундах? Или в чем?
     public void setCircleWorkTime(Integer workTime, Integer circleNum) {
         circles.get(circleNum).setWorkTime(workTime);
     }
 
     public void setCircleRestTime(Integer restTime, Integer circleNum) {
         circles.get(circleNum).setRestTime(restTime);
+    }
+
+    //ToDo. Реализовать расчет скорости
+    public String countAveragePace(Integer distance, TimeUnit timeUnit, boolean workPace) {
+        Double averagePace = 0.0;
+        //Get total time in seconds
+        if (workPace) {
+            for (CircleData c : circles) {
+                averagePace += (1.0 * c.getWorkTime()) / workDistance;
+            }
+        } else {
+            for (CircleData c : circles) {
+                averagePace += (1.0 * c.getRestTime()) / restDistance;
+            }
+        }
+        //Pace as second per meter
+        averagePace = averagePace / circlesCnt;
+        switch (timeUnit) {
+            case SECOND:
+                averagePace = Math.ceil(averagePace * distance);
+                return averagePace.toString();
+            case MINUTE:
+                averagePace = Math.ceil(averagePace * distance / 60);
+                return averagePace.toString();
+            default:
+                return "Error";
+        }
+
     }
 
     @Override
@@ -90,6 +119,6 @@ public class TrainingData implements Parcelable {
         circlesCnt = in.readInt();
         workDistance = in.readInt();
         restDistance = in.readInt();
-        in.readTypedList(circles, CircleData.CREATOR);
+        circles = in.createTypedArrayList(CircleData.CREATOR);
     }
 }

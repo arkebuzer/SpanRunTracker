@@ -2,10 +2,12 @@ package com.arkebuzer.konstantin.spanruntracker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean onRun = false;
     private long runStartTime = 0;
     private TextView runTimerArea;
-    private long circleStartTime = 0;
-    private TextView circleTimerArea;
+    private long spanStartTime = 0;
+    private TextView spanTimerArea;
     private boolean workSpan = false;
     private int circleNum = 0;
 
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         binding.setTrainingData(TrainingData);*/
         setContentView(R.layout.activity_main);
         runTimerArea = (TextView) findViewById(R.id.run_timer_area);
-        circleTimerArea = (TextView) findViewById(R.id.circle_timer_area);
+        spanTimerArea = (TextView) findViewById(R.id.span_timer_area);
         /*Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -93,15 +95,17 @@ public class MainActivity extends AppCompatActivity {
                 Button button = (Button) view;
                 button.setText(R.string.work);
                 //Start Timers
-                circleNum = trainingData.getCirclesCnt();
+                circleNum = 0;
                 runStartTime = System.currentTimeMillis();
                 runTimerHandler.postDelayed(runTimerRunnable, 0);
-                circleStartTime = runStartTime;
-                circleTimerHandler.postDelayed(circleTimerRunnable, 0);
+                spanStartTime = runStartTime;
+                spanTimerHandler.postDelayed(spanTimerRunnable, 0);
             }
         } else { //Тренировка начата
             vibrate();
-            if (workSpan) { //Рабочий отрезок
+            if (workSpan) { //Закончился рабочий отрезок
+                //Устанавливаем время рабочего отрезка
+                setSpanTime(workSpan);
                 workSpan = false;
                 //Change background
                 View mainView = findViewById(R.id.main_activity);
@@ -109,14 +113,17 @@ public class MainActivity extends AppCompatActivity {
                 //Change button label
                 Button button = (Button) view;
                 button.setText(R.string.rest);
-            } else { //Отрезок для отдыхы
-                circleNum--;
-                if (circleNum == 0) { //Конец тренировки
+                spanStartTime = System.currentTimeMillis();
+            } else { //Закончился трезок для отдыха
+                //Устанавливаем время отрезка для отдыха
+                setSpanTime(workSpan);
+                circleNum++;
+                if (circleNum == trainingData.getCirclesCnt()) { //Конец тренировки
                     onRun = false;
                     workSpan = false;
                     //Stop Timers
                     runTimerHandler.removeCallbacks(runTimerRunnable);
-                    circleTimerHandler.removeCallbacks(circleTimerRunnable);
+                    spanTimerHandler.removeCallbacks(spanTimerRunnable);
                     //Change background
                     View mainView = findViewById(R.id.main_activity);
                     mainView.setBackgroundColor(getResources().getColor(R.color.colorIdle));
@@ -140,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
                     //Change button label
                     Button button = (Button) view;
                     button.setText(R.string.work);
-                    circleStartTime = System.currentTimeMillis();
+                    spanStartTime = System.currentTimeMillis();
                 }
             }
         }
@@ -175,6 +182,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setSpanTime(boolean workSpan) {
+        if (workSpan) {
+            //"%02d:%02d.%02d", minutes, seconds, centis
+            String spanTimeStr = spanTimerArea.getText().toString();
+            //Log.d("Minutes",spanTimeStr.substring(0,2));
+            //Log.d("Seconds",spanTimeStr.substring(3,5));
+            Integer secs = Integer.parseInt(spanTimeStr.substring(0, 2)) * 60
+                    + Integer.parseInt(spanTimeStr.substring(3, 5));
+            trainingData.setCircleWorkTime(secs, circleNum);
+        } else {
+            String spanTimeStr = spanTimerArea.getText().toString();
+            Integer secs = Integer.parseInt(spanTimeStr.substring(0, 2)) * 60
+                    + Integer.parseInt(spanTimeStr.substring(3, 5));
+            trainingData.setCircleRestTime(secs, circleNum);
+        }
+    }
+
     //runs without a timer by reposting this handler at the end of the runnable
     private Handler runTimerHandler = new Handler();
     private Runnable runTimerRunnable = new Runnable() {
@@ -196,21 +220,21 @@ public class MainActivity extends AppCompatActivity {
 
     //runs without a timer by reposting this handler at the end of the runnable
     //ToDo. Подумать о сокращении дублированной логики
-    private Handler circleTimerHandler = new Handler();
-    private Runnable circleTimerRunnable = new Runnable() {
+    private Handler spanTimerHandler = new Handler();
+    private Runnable spanTimerRunnable = new Runnable() {
 
         @Override
         public void run() {
-            long millis = System.currentTimeMillis() - circleStartTime;
+            long millis = System.currentTimeMillis() - spanStartTime;
             int centis = (int) (millis / 10);
             int seconds = (int) (millis / 1000);
             int minutes = seconds / 60;
             seconds = seconds % 60;
             centis = centis % 100;
 
-            circleTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
+            spanTimerArea.setText(String.format("%02d:%02d.%02d", minutes, seconds, centis));
             //ToDo. Разобраться с выводом сотых секунд
-            circleTimerHandler.postDelayed(this, 20);
+            spanTimerHandler.postDelayed(this, 20);
         }
     };
 
@@ -224,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         // Создаем объект Intent для вызова новой Activity
         Intent intent = new Intent(this, ReportActivity.class);
         // Добавляем с помощью свойства putExtra объект - первый параметр - ключ,
-        // второй параметр - хначение этого объекта
+        // второй параметр - значение этого объекта
         intent.putExtra(EXTRA_TRAINING_DATA, trainingData);
         // запуск activity
         startActivity(intent);
@@ -233,6 +257,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        //toast.cancel();
     }
 }
